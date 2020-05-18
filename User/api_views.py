@@ -1,8 +1,10 @@
-from SmartDjango import Analyse
+from SmartDjango import Analyse, ModelError, E
 from django.views import View
 from smartify import P
 
 from Base.auth import Auth
+from Base.recaptcha import Recaptcha
+from Base.send_mobile import SendMobile
 from User.models import User, UserP
 
 
@@ -19,13 +21,14 @@ class UserView(View):
         return UsernameView.get_info(user.username)
 
     @staticmethod
-    @Analyse.r(b=[UserP.username, UserP.password])
+    @Analyse.r(b=[UserP.username, UserP.password, UserP.nickname, P('code', '验证码')])
     def post(request):
         """ POST /api/user/
 
         创建用户
         """
-        user = User.create(**request.d.dict('username', 'password'))
+        phone = SendMobile.check_captcha(request, **request.d.dict('code'))
+        user = User.create(phone, **request.d.dict('username', 'password', 'nickname'))
         return Auth.get_login_token(user)
 
     @staticmethod
@@ -95,3 +98,36 @@ class TokenView(View):
         """
         user = User.authenticate(**request.d.dict())
         return Auth.get_login_token(user)
+
+
+class SendRegisterCaptchaView(View):
+    @staticmethod
+    @Analyse.r([P('response', '人机验证码').null(),
+                P('code', '短信验证码').null(),
+                P('phone', '手机号')
+                ])
+    def post(request):
+        """
+        POST /api/user/registerCaptcha
+        :param request:
+        :return:
+        """
+        resp = request.d.response
+        if not resp or not Recaptcha.verify(resp):
+            raise ModelError.FIELD_FORMAT(append_message='人机验证失败')
+        code = request.d.code
+        if not code:
+            raise ModelError.FIELD_FORMAT
+
+        try:
+            User.get_by_phone(request.d.phone)
+            SendMobile.send_captcha(request, request.d.phone)
+            toast_msg = '验证码也发送，请查收'
+        except E:
+            toast_msg = '手机号已注册'
+        return dict(
+            toast_msg=toast_msg
+        )
+
+
+

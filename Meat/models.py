@@ -9,15 +9,15 @@ class Meat(models.Model):
     content = models.TextField(
         default=None,
         null=True,
-    ),
+    )
     toad = models.ForeignKey(
         'User.User',
         related_name='toad_user',
         on_delete=models.CASCADE,
-    ),
+    )
     target_time = models.DateTimeField(
         null=True
-    ),
+    )
     eaten = models.BooleanField(
         default=False
     )

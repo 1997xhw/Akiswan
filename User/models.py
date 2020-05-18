@@ -15,6 +15,7 @@ class UserError:
     CREATE_USER = E("存储用户错误")
     PASSWORD = E("错误的用户名或密码")
     NOT_FOUND_USER = E("不存在的用户")
+    PHONE_REGISTERED = E("手机号已被注册")
 
 
 class User(models.Model):
@@ -98,6 +99,15 @@ class User(models.Model):
         raise UserError.USERNAME_EXIST
 
     @classmethod
+    def get_by_phone(cls, phone):
+        """根据手机号获取用户对象"""
+        try:
+            cls.objects.get(phone=phone)
+            raise UserError.PHONE_REGISTERED
+        except cls.DoesNotExist:
+            pass
+
+    @classmethod
     def inviterjsonArr(cls, data):
         rData = []
         for item in data:
@@ -106,11 +116,12 @@ class User(models.Model):
         return rData
 
     @classmethod
-    def create(cls, username, password):
+    def create(cls, phone, username, password, nickname):
         """ 创建用户
-
+        :param phone: 手机号
         :param username: 用户名
         :param password: 密码
+        :param nickname: 昵称
         :return: Ret对象，错误返回错误代码，成功返回用户对象
         """
         cls.validator(locals())
@@ -123,10 +134,12 @@ class User(models.Model):
                 username=username,
                 password=hashed_password,
                 salt=salt,
+                nickname=nickname,
+                phone=phone
             )
             user.save()
-        except Exception:
-            raise UserError.CREATE_USER
+        except Exception as err:
+            raise UserError.CREATE_USER(debug_message=err)
         return user
 
     def change_password(self, password, old_password):
@@ -193,4 +206,4 @@ class User(models.Model):
 
 
 class UserP:
-    username, password = User.get_params('username', 'password')
+    username, password, nickname = User.get_params('username', 'password', 'nickname')
