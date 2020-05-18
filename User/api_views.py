@@ -19,19 +19,13 @@ class UserView(View):
         return UsernameView.get_info(user.username)
 
     @staticmethod
-    @Analyse.r(b=[UserP.username, UserP.password, UserP.invite_code])
+    @Analyse.r(b=[UserP.username, UserP.password])
     def post(request):
         """ POST /api/user/
 
         创建用户
         """
-        print(1111)
-        invite_code = request.d.invite_code
-        if invite_code is not None:
-            # print(invite_code)
-            user = User.create_invite(**request.d.dict())
-        else:
-            user = User.create(**request.d.dict('username', 'password'))
+        user = User.create(**request.d.dict('username', 'password'))
         return Auth.get_login_token(user)
 
     @staticmethod
@@ -59,23 +53,6 @@ class UserView(View):
         return user.d()
 
 
-class InviteUserView(View):
-    @staticmethod
-    @Auth.require_login
-    @Analyse.r(a=[UserP.username])
-    def get(request):
-        """ GET /api/user/invite@:username
-
-                获取用户信息
-        """
-        username = request.d .username
-        print(username)
-        # print(User.objects.filter(inviter=username))
-        data = User.objects.filter(inviter__exact=username).dict(User.d_invite)
-        print(len(User.objects.filter(inviter__exact=username)))
-        return data
-
-
 class UsernameView(View):
     @staticmethod
     @Analyse.r(a=[UserP.username])
@@ -98,7 +75,6 @@ class UsernameView(View):
     @staticmethod
     @Analyse.r(a=[UserP.username])
     # @Auth.require_root
-    @Auth.require_inviter
     def delete(request):
         """ DELETE /api/user/@:username
 

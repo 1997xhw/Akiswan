@@ -45,22 +45,18 @@ class User(models.Model):
         blank=True,
         default=0,
     )
-    inviter = models.ForeignKey(
-        'User.User',
-        on_delete=models.CASCADE,
+    nickname = models.CharField(
+        max_length=10,
         default=None,
-        null=True
     )
-    invite_code = models.CharField(
+    phone = models.CharField(
         default=None,
-        max_length=255,
-        blank=True,
-        null=True,
+        unique=True,
+        max_length=20,
     )
-    talked = models.BooleanField(
-        # 是否发了talk
-        default=False,
-        null=True,
+    meat_quantity = models.IntegerField(
+        # 已发布任务数目
+        default=0,
     )
 
     def is_ancestor(self, user: 'User'):
@@ -110,52 +106,11 @@ class User(models.Model):
         return rData
 
     @classmethod
-    def return_inviter(cls, invite_code):
-        try:
-
-            cls.objects.get(invite_code=invite_code)
-        except cls.DoesNotExist:
-            raise UserError.NOT_FOUND_CODE
-        else:
-            user = User.objects.get(invite_code=invite_code)
-            print(user.username)
-            return user
-
-    @classmethod
-    def create_invite(cls, username, password, invite_code):
-        """ 创建用户(有邀请码)
-
-                :param username: 用户名
-                :param password: 密码
-                :param invite_code: 邀请码
-                :return: Ret对象，错误返回错误代码，成功返回用户对象
-        """
-        salt, hashed_password = User.hash_password(password)
-        User.exist_with_username(username)
-        # User.exist_with_invitecode(invite_code)
-        # print(invite_code)
-        inviter = User.return_inviter(invite_code)
-        # print(inviter.username)
-        try:
-            user = cls(
-                username=username,
-                password=hashed_password,
-                invite_code=username + '666',
-                salt=salt,
-                inviter=inviter,
-            )
-            user.save()
-        except Exception:
-            raise UserError.CREATE_USER
-        return user
-
-    @classmethod
     def create(cls, username, password):
         """ 创建用户
 
         :param username: 用户名
         :param password: 密码
-        :param invite_code: 邀请码
         :return: Ret对象，错误返回错误代码，成功返回用户对象
         """
         cls.validator(locals())
@@ -168,7 +123,6 @@ class User(models.Model):
                 username=username,
                 password=hashed_password,
                 salt=salt,
-                invite_code=username + '666',
             )
             user.save()
         except Exception:
@@ -231,31 +185,12 @@ class User(models.Model):
         self.talked = bool(1 - self.talked)
         self.save()
 
-    def is_beinviter(self, inviter):
-        if self.username == inviter:
-            return True
-        else:
-            inviters = User.objects.filter(inviter__exact=self.username)
-            if len(inviters) > 0:
-                for invite in inviters:
-                    # print(inviter.username)
-                    return invite.is_beinviter(inviter)
-            else:
-                return False
-
     def d(self):
-        return self.dictor('pk->uid', 'username', 'inviter')
-
-    def d_invite(self):
-        return self.dictor('pk->id', 'username')
-
-    def _readable_inviter(self):
-        if self.inviter:
-            return self.inviter.d_base()
+        return self.dictor('pk->uid', 'username')
 
     def d_base(self):
         return self.dictor('pk->id', 'username')
 
 
 class UserP:
-    username, password, invite_code = User.get_params('username', 'password', 'invite_code')
+    username, password = User.get_params('username', 'password')

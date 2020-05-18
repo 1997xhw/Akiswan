@@ -3,7 +3,6 @@ from functools import wraps
 from SmartDjango import E, Hc
 
 from Base.jtoken import JWT
-from Talk.models import Talk
 from User.models import User
 
 
@@ -12,8 +11,6 @@ class AuthError:
     REQUIRE_LOGIN = E("需要登录", hc=Hc.Unauthorized)
     TOKEN_MISS_PARAM = E("认证口令缺少参数{0}", hc=Hc.Forbidden)
     REQUIRE_ROOT = E("需要root权限")
-    REQUIRE_INVITER = E("需要邀请人权限")
-    REQUIRE_Talker = E("需要发言人权限")
 
 
 class Auth:
@@ -62,39 +59,6 @@ class Auth:
             cls._extract_user(r)
             if r.user.pk != User.ROOT_ID:
                 raise AuthError.REQUIRE_ROOT
-            return func(r, *args, **kwargs)
-
-        return wrapper
-
-    @classmethod
-    def require_inviter(cls, func):
-        @wraps(func)
-        def wrapper(r, *args, **kwargs):
-            cls._extract_user(r)
-            # 被删
-            print(r.d.username)
-            # 被删的邀请人
-            inviter = User.objects.get(username=r.d.username).inviter
-            # 操作人
-            print(r.user.username)
-            if r.user.is_beinviter(inviter):
-                print("ok")
-            else:
-                raise AuthError.REQUIRE_INVITER
-            return func(r, *args, **kwargs)
-
-        return wrapper
-
-    @classmethod
-    def require_talker(cls, func):
-        @wraps(func)
-        def wrapper(r, *args, **kwargs):
-            cls._extract_user(r)
-            talker = Talk.objects.get(id=r.d.tid).talker
-            if talker.username == r.user.username:
-                pass
-            else:
-                raise AuthError.REQUIRE_Talker
             return func(r, *args, **kwargs)
 
         return wrapper
