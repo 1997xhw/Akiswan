@@ -102,7 +102,8 @@ class TokenView(View):
 
 class SendRegisterCaptchaView(View):
     @staticmethod
-    @Analyse.r([P('challenge', '极验深知凭证'), P('phone', '手机号')])
+    # P('challenge', '极验深知凭证'),
+    @Analyse.r([P('phone', '手机号')])
     def post(request):
         """
         POST /api/user/registerCaptcha
@@ -111,17 +112,17 @@ class SendRegisterCaptchaView(View):
                 phone: 手机号
         :return:
         """
-        challenge = request.d.challenge
         phone = request.d.phone
-        if not challenge or not Geetest.verify(challenge, phone):
-            raise ModelError.FIELD_FORMAT(append_message='人机验证失败')
+        # challenge = request.d.challenge
+        # if not challenge or not Geetest.verify(challenge, phone):
+        #     raise ModelError.FIELD_FORMAT(append_message='人机验证失败')
         # code = request.d.code
         # if not code:
         #     raise ModelError.FIELD_FORMAT
 
         try:
-            User.get_by_phone(request.d.phone)
-            SendMobile.send_captcha(request, request.d.phone)
+            User.get_by_phone(phone)
+            SendMobile.send_captcha(request, phone)
             toast_msg = '验证码已发送，请查收'
             send = True
         except E:
