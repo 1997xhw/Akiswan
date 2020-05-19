@@ -3,7 +3,7 @@ from django.views import View
 from smartify import P
 
 from Base.auth import Auth
-from Base.recaptcha import Recaptcha
+from Base.geetest import Geetest
 from Base.send_mobile import SendMobile
 from User.models import User, UserP
 
@@ -102,32 +102,32 @@ class TokenView(View):
 
 class SendRegisterCaptchaView(View):
     @staticmethod
-    @Analyse.r([P('response', '人机验证码').null(),
-                P('code', '短信验证码').null(),
-                P('phone', '手机号')
-                ])
+    @Analyse.r([P('challenge', '极验深知凭证'), P('phone', '手机号')])
     def post(request):
         """
         POST /api/user/registerCaptcha
         :param request:
+                code: 短信验证码
+                phone: 手机号
         :return:
         """
-        resp = request.d.response
-        if not resp or not Recaptcha.verify(resp):
+        challenge = request.d.challenge
+        phone = request.d.phone
+        if not challenge or not Geetest.verify(challenge, phone):
             raise ModelError.FIELD_FORMAT(append_message='人机验证失败')
-        code = request.d.code
-        if not code:
-            raise ModelError.FIELD_FORMAT
+        # code = request.d.code
+        # if not code:
+        #     raise ModelError.FIELD_FORMAT
 
         try:
             User.get_by_phone(request.d.phone)
             SendMobile.send_captcha(request, request.d.phone)
-            toast_msg = '验证码也发送，请查收'
+            toast_msg = '验证码已发送，请查收'
+            send = True
         except E:
             toast_msg = '手机号已注册'
+            send = False
         return dict(
+            send=send,
             toast_msg=toast_msg
         )
-
-
-

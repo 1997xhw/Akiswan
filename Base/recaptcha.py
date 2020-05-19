@@ -1,8 +1,8 @@
 import requests
 
-from Config.models import Config, CI
+# from Config.models import Config, CI
 
-G_RECAPTCHA_SECRET = Config.get_value_by_key(CI.G_RECAPTCHA_SECRET)
+# G_RECAPTCHA_SECRET = Config.get_value_by_key(CI.G_RECAPTCHA_SECRET)
 
 
 class Recaptcha:

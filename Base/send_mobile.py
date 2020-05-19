@@ -4,11 +4,14 @@ from django.utils.crypto import get_random_string
 import requests
 import json
 
-yunpian_appkey = "Config.get_value_by_key(CI.YUNPIAN_APPKEY)"
+yunpian_appkey = "17b6380427edbd4d923165321bb40b38"
+
+
+# 之后记得塞进config里面隐藏起来！！！！
 
 
 class SendMobile:
-    texts = '【Akiita】本次注册的验证码为#code#，五分钟内有效。'
+    texts = '【Akiiita】本次注册的验证码为#code#，五分钟内有效。'
     PHONE = 'phone'
     PHONE_NUMBER = 'phone_number'
 
