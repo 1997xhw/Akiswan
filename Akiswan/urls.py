@@ -16,5 +16,5 @@ Including another URLconf
 from django.urls import path, include
 
 urlpatterns = [
-    path('api', include('Akiswan.api_urls')),
+    path('api/', include('Akiswan.api_urls')),
 ]

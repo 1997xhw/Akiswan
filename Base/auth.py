@@ -11,7 +11,8 @@ class AuthError:
     REQUIRE_LOGIN = E("需要登录", hc=Hc.Unauthorized)
     TOKEN_MISS_PARAM = E("认证口令缺少参数{0}", hc=Hc.Forbidden)
     REQUIRE_ROOT = E("需要root权限")
-
+    MEAT_QUANTITY = E("用户的任务已达上限", hc=Hc.BadRequest)
+    MEAT_OWNER = E("该用户不是meat的拥有者", hc=Hc.BadRequest)
 
 class Auth:
     @staticmethod
@@ -61,4 +62,22 @@ class Auth:
                 raise AuthError.REQUIRE_ROOT
             return func(r, *args, **kwargs)
 
+        return wrapper
+
+    @classmethod
+    def meat_quantity(cls, func):
+        @wraps(func)
+        def wrapper(r, *args, **kwargs):
+            if r.user.meat_quantity >= 3:
+                raise AuthError.MEAT_QUANTITY
+            return func(r, *args, **kwargs)
+        return wrapper
+
+    @classmethod
+    def meat_owner(cls, func):
+        @wraps(func)
+        def wrapper(r, *args, **kwargs):
+            if r.user != r.d.meat.toad:
+                raise AuthError.MEAT_OWNER
+            return func(r, *args, **kwargs)
         return wrapper

@@ -16,6 +16,8 @@ class UserError:
     PASSWORD = E("错误的用户名或密码")
     NOT_FOUND_USER = E("不存在的用户")
     PHONE_REGISTERED = E("手机号已被注册")
+    ADD_MEAT_QUANTITY = E("增加天鹅肉数量错误")
+    REDUCE_MEAT_QUANTITY = E("减少天鹅肉数量错误")
 
 
 class User(models.Model):
@@ -142,6 +144,20 @@ class User(models.Model):
             raise UserError.CREATE_USER(debug_message=err)
         return user
 
+    def add_meat_quantity(self):
+        try:
+            self.meat_quantity = self.meat_quantity + 1
+            self.save()
+        except Exception:
+            raise UserError.ADD_MEAT_QUANTITY
+
+    def reduce_meat_quantity(self):
+        try:
+            self.meat_quantity = self.meat_quantity - 1
+            self.save()
+        except Exception:
+            raise UserError.ADD_MEAT_QUANTITY
+
     def change_password(self, password, old_password):
         """修改密码"""
         self.validator(locals())
@@ -199,7 +215,7 @@ class User(models.Model):
         self.save()
 
     def d(self):
-        return self.dictor('pk->uid', 'username')
+        return self.dictor('pk->uid', 'username', 'nickname')
 
     def d_base(self):
         return self.dictor('pk->id', 'username')
