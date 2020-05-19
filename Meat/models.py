@@ -12,6 +12,7 @@ class MeatError:
     GET_MEAT_BY_PK = E("获取MEAT错误")
     CHANGE_MEAT_STATUS = E("改变STATUS失败")
     CHANGE_MEAT_ACHIEVE = E("改变ACHIEVE失败")
+    CHECK_TARGET_TIME = E("检索meat列表的target-time错误")
 
 
 class Meat(models.Model):
@@ -85,6 +86,20 @@ class Meat(models.Model):
         if not meat.achieve and status > 1:
             cls.change_meat_achieve(meat, True)
         return meat
+
+    @classmethod
+    def check_target_time(cls):
+        try:
+            meats = cls.objects.filter(achieve=False)
+            now_time = datetime.datetime.now()
+            change_list = []
+            for meat in meats:
+                if now_time > meat.target_time:
+                    m = cls.change_meat_status(meat, 1)
+                    change_list.append(m.d_meat_list())
+        except Exception as err:
+            raise MeatError.CHECK_TARGET_TIME(debug_message=err)
+        return change_list
 
     @staticmethod
     def change_meat_achieve(meat, achieve):
