@@ -1,9 +1,8 @@
 from SmartDjango import Analyse, ModelError, E
 from django.views import View
 from smartify import P
-
 from Base.auth import Auth
-from Base.geetest import Geetest
+from Base.geetests import Geetest
 from Base.send_mobile import SendMobile
 from User.models import User, UserP
 

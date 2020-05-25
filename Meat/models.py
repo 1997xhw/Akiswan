@@ -122,11 +122,11 @@ class Meat(models.Model):
         pass
 
     def d(self):
-        return self.dictor('pk->mid', 'content', 'toad', 'target_time', 'create_time', 'status', 'notification',
+        return self.dictor('pk->mid', 'content', 'toad', 'target_time->time', 'create_time', 'status', 'notification',
                            'achieve')
 
     def d_meat_list(self):
-        return self.dictor('pk->mid', 'content', 'status', 'achieve')
+        return self.dictor('pk->mid', 'content', 'status', 'achieve', 'target_time->time')
 
     def _readable_toad(self):
         if self.toad:
