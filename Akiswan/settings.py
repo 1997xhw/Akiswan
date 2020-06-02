@@ -86,7 +86,7 @@ ROOT_URLCONF = 'Akiswan.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['front/dist'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -98,7 +98,10 @@ TEMPLATES = [
         },
     },
 ]
-
+# Add for vue.js
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "front/dist/static"),
+]
 WSGI_APPLICATION = 'Akiswan.wsgi.application'
 
 

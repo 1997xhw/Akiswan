@@ -24,7 +24,7 @@ class MeatView(View):
         return Meat.objects.filter(toad=request.user).order_by('-create_time').dict(Meat.d_meat_list)
 
 
-class MeatStatusView(View):
+class  MeatStatusView(View):
     @staticmethod
     @Auth.require_login
     @Analyse.r(b=[MeatP.mid, MeatP.status])
