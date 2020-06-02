@@ -7,7 +7,6 @@ django-cors-headers==3.2.1
 geetest==3.2.1
 gunicorn==20.0.4
 idna==2.6
-musicdl==2.1.2
 mysqlclient==1.4.6
 path==14.0.1
 prettytable==0.7.2
