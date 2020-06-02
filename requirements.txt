@@ -22,5 +22,5 @@ SmartDjango==3.6.3a0
 smartify==0.0.2a5
 sqlparse==0.3.0
 tornado==6.0.4
-urllib3==1.22
+urllib3==1.24.2
 view==0.1
