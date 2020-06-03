@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "precache-manifest.e90dfb5a673f431e306e61302d182e71.js"
+  "precache-manifest.af23583ad2957b6518f6dd6e1282032a.js"
 );
 
 workbox.core.setCacheNameDetails({prefix: "akiswan"});
