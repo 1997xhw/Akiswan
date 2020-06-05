@@ -23,6 +23,7 @@ class GetCaptchaView(View):
         return HttpResponse(respone_str)
 
 
+
 class ValidateView(View):
     @staticmethod
     def post(request):
