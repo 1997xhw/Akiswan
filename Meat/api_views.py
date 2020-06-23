@@ -60,8 +60,8 @@ class CreateMeatView(View):
 
 class CheckTargetTimeView(View):
     @staticmethod
-    def put(request):
+    def post(request):
         """
-        PUT /api/meat/check
+        POST /api/meat/check
         """
         return Meat.check_target_time()
