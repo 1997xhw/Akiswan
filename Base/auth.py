@@ -1,7 +1,9 @@
 from functools import wraps
 
 from SmartDjango import E, Hc
+from geetest import GeetestLib
 
+from Base.geetest_api_views import geetest_id, geetest_key
 from Base.jtoken import JWT
 from User.models import User
 
@@ -13,6 +15,7 @@ class AuthError:
     REQUIRE_ROOT = E("需要root权限")
     MEAT_QUANTITY = E("用户的任务已达上限", hc=Hc.BadRequest)
     MEAT_OWNER = E("该用户不是meat的拥有者", hc=Hc.BadRequest)
+    GEETEST_VALIDATE = E("极验验证错误")
 
 class Auth:
     @staticmethod
@@ -80,4 +83,24 @@ class Auth:
             if r.user != r.d.meat.toad:
                 raise AuthError.MEAT_OWNER
             return func(r, *args, **kwargs)
+        return wrapper
+
+    @classmethod
+    def geetestValidate(cls, func):
+        @wraps(func)
+        def wrapper(r, *args, **kwargs):
+            gt = GeetestLib(geetest_id, geetest_key)
+            challenge = r.d.geetest_challenge
+            validate = r.d.geetest_validate
+            seccode = r.d.geetest_seccode
+            status = r.session[gt.GT_STATUS_SESSION_KEY]
+            user_id = r.session["user_id"]
+            if status:
+                result = gt.success_validate(challenge, validate, seccode, user_id)
+            else:
+                result = gt.failback_validate(challenge, validate, seccode)
+            if result:
+                return func(r, *args, **kwargs)
+            else:
+                raise AuthError.GEETEST_VALIDATE
         return wrapper

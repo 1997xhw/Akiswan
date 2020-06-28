@@ -44,15 +44,10 @@ class AxiosValidateView(View):
     @staticmethod
     @Analyse.r(b=[P('geetest_challenge', 'challenge'), P('geetest_seccode', 'seccode'), P('geetest_validate', '验证码')])
     def post(request):
-        print("+++++++++++++")
         gt = GeetestLib(geetest_id, geetest_key)
-        print(request.POST)
         challenge = request.d.geetest_challenge
         validate = request.d.geetest_validate
         seccode = request.d.geetest_seccode
-        print('challenge:'+challenge)
-        print('validate'+validate)
-        print('seccode'+seccode)
         status = request.session[gt.GT_STATUS_SESSION_KEY]
         user_id = request.session["user_id"]
         if status:

@@ -89,20 +89,23 @@ class UsernameView(View):
 
 class TokenView(View):
     @staticmethod
-    @Analyse.r(b=[UserP.username, UserP.password])
+    @Analyse.r(b=[P('geetest_challenge', 'challenge'), P('geetest_seccode', 'seccode'), P('geetest_validate', '验证码'),
+                  UserP.username, UserP.password])
+    @Auth.geetestValidate
     def post(request):
         """ POST /api/user/token
 
         登录获取token
         """
-        user = User.authenticate(**request.d.dict())
+        user = User.authenticate(request.d.username, request.d.password)
         return Auth.get_login_token(user)
 
 
 class SendRegisterCaptchaView(View):
     @staticmethod
     # P('challenge', '极验深知凭证'),
-    @Analyse.r([P('phone', '手机号')])
+    @Analyse.r(b=[P('geetest_challenge', 'challenge'), P('geetest_seccode', 'seccode'), P('geetest_validate', '验证码'), P('phone', '手机号')])
+    @Auth.geetestValidate
     def post(request):
         """
         POST /api/user/registerCaptcha
@@ -112,12 +115,6 @@ class SendRegisterCaptchaView(View):
         :return:
         """
         phone = request.d.phone
-        # challenge = request.d.challenge
-        # if not challenge or not Geetest.verify(challenge, phone):
-        #     raise ModelError.FIELD_FORMAT(append_message='人机验证失败')
-        # code = request.d.code
-        # if not code:
-        #     raise ModelError.FIELD_FORMAT
 
         try:
             User.get_by_phone(phone)
